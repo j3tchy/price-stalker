@@ -1,14 +1,17 @@
 // Connect to the MongoDB
 const { MongoClient } = require("mongodb");
+const mongoose = require('mongoose');
 
-const url = 'mongodb://127.0.0.1:27017';
-const dbName = 'test-db';
+const dbName = 'price-stalker';
+const url = `mongodb://127.0.0.1:27017/${dbName}`;
 
-const db = MongoClient.connect(url, {
+mongoose.connect(`${url}`, {
   useNewUrlParser: true,
-  useUnifiedTopology: true
+  useUnifiedTopology: true,
 }).catch(err => {
   console.error(err)
 });
+
+const db = mongoose.connection;
 
 module.exports = db;
