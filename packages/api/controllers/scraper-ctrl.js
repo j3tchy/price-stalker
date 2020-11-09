@@ -62,7 +62,49 @@ const getScrapers = async (req, res) => {
   }).catch(err => console.error(err))
 }
 
+const updateScraper = async (req, res) => {
+  const body = req.body;
+
+  // If no body is sent, return json
+  if (!body) {
+    return res.status(400).json({
+      success: false,
+      error: 'Unable to update scraper',
+    })
+  }
+
+  return Scraper.findOne({ id: req.params._id }, ( err, scraper ) => {
+    if (err) {
+      return res.status(404).json({
+        err,
+        message: 'Scraper not found'
+      })
+    }
+
+    scraper.price = body.price;
+
+    scraper
+      .save()
+      .then(() => {
+        return res
+          .status(200)
+          .json({
+            success: true,
+            id: scraper._id,
+            message: 'Scraper Updated'
+          })
+      })
+      .catch(() => {
+        return res.status(400).json({
+          success: false,
+          message: 'Scraper not updated'
+        })
+      })
+  })
+}
+
 module.exports = {
   createScraper,
-  getScrapers
+  getScrapers,
+  updateScraper,
 };

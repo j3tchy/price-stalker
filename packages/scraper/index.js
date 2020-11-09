@@ -40,13 +40,29 @@ const scrapeWebsites = async (url, element, retailer, price) => {
   }
 }
 
+// Update the DB
+const updateScraper = async (id, price) => {
+  try {
+    await fetch(`http://localhost:5000/api/scrapers/${id}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        price
+      })
+    })
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 getScrapers()
   .then(res => res.json())
   .then(({ data }) => {
     // Get array of new product details
     // Loop through each details and create PUT request for each one
-    data.map(({ url, element, retailer, price }) => {
+    data.map(({ url, element, retailer, price, id }) => {
       scrapeWebsites(url, element, retailer, price);
     })
+
+    //updateScraper
   })
   .catch(err => console.error(err));
