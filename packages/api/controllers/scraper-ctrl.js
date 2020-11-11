@@ -65,6 +65,8 @@ const getScrapers = async (req, res) => {
 const updateScraper = async (req, res) => {
   const body = req.body;
 
+  console.log('BODY', body);
+
   // If no body is sent, return json
   if (!body) {
     return res.status(400).json({

@@ -1,20 +1,34 @@
 const fetch = require('node-fetch');
 const jsdom = require('jsdom');
+const { stripOutPoundsSign } = require('./utils/string')
+const { API_ROUTES } = require("../api/constants/routes");
+const { createRoute } = require("../api/utils");
+const { PRICE_DIFFERENCE } = require("../api/constants/enums");
+const { createFormBody } = require('./utils/form');
+
 const { JSDOM } = jsdom;
 
-const { stripOutPoundsSign } = require('./utils/string')
 
 // Call to the DB to get scraper details
-const getScrapers = async () => {
+async function getScrapers() {
   try {
-    return await fetch('http://localhost:5000/api/scrapers');
+    return await fetch(API_ROUTES.API_SCRAPERS);
   } catch (err) {
     console.error(err)
   }
 }
 
 // Call to the websites to scrape
-const scrapeWebsites = async (url, element, retailer, price) => {
+async function scrapeWebsites (url, element, retailer, price, _id) {
+  const product = {
+    _id: _id,
+    retailer: retailer,
+    url: url,
+    element: element,
+    price: price,
+    priceDifference: null
+  }
+
   try {
     const response = await fetch(url);
     const text = await response.text();
@@ -25,6 +39,12 @@ const scrapeWebsites = async (url, element, retailer, price) => {
 
     if (!currentPrice) {
       console.log(`Unable to retrieve price from ${retailer}`)
+
+      return {
+        ...productDetails,
+        retailer: `${retailer}: Unable to retrieve price`,
+        price: "N/A"
+      }
     }
 
     // TODO: Setup email - with the returned object, add
@@ -33,6 +53,21 @@ const scrapeWebsites = async (url, element, retailer, price) => {
     
     if (websitePrice === price) {
       console.log("prices are the same");
+      return product
+    }
+
+    if (websitePrice > price) {
+      return {
+        ...product,
+        price: websitePrice,
+        priceDifference: PRICE_DIFFERENCE.UP
+      }
+    } else {
+      return {
+        ...product,
+        price: websitePrice,
+        priceDifference: PRICE_DIFFERENCE.DOWN
+      }
     }
 
   } catch (err) {
@@ -41,13 +76,18 @@ const scrapeWebsites = async (url, element, retailer, price) => {
 }
 
 // Update the DB
-const updateScraper = async (id, price) => {
+async function updateScraper(id, price) {
+  const formData = {
+    price
+  };
+
   try {
-    await fetch(`http://localhost:5000/api/scrapers/${id}`, {
-      method: 'POST',
-      body: JSON.stringify({
-        price
-      })
+    await fetch(createRoute(API_ROUTES.API_SCRAPER_ID, { scraperId: id }), {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+      },
+      body: createFormBody(formData),
     })
   } catch (err) {
     console.error(err);
@@ -59,10 +99,15 @@ getScrapers()
   .then(({ data }) => {
     // Get array of new product details
     // Loop through each details and create PUT request for each one
-    data.map(({ url, element, retailer, price, id }) => {
-      scrapeWebsites(url, element, retailer, price);
-    })
+    const productsList = async () => Promise.all(data.map(async ({ url, element, retailer, price, _id }) => {
+      const scraper = await scrapeWebsites(url, element, retailer, price, _id);
+      
+      return scraper;
+    }));
 
-    //updateScraper
+    productsList()
+      .then(products => {
+        products.forEach(({ _id, price }) => updateScraper(_id, price))
+      })
   })
   .catch(err => console.error(err));
