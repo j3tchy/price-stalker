@@ -20,30 +20,26 @@ async function getScrapers() {
 }
 
 // Call to the websites to scrape
-async function scrapeWebsites (url, element, retailer, price, _id) {
-  const product = {
-    _id: _id,
-    retailer: retailer,
-    url: url,
-    element: element,
-    price: price,
+async function scrapeWebsites (product) {
+  const productDetails = {
+    ...product,
     priceDifference: null
   }
 
   try {
-    const response = await fetch(url);
+    const response = await fetch(productDetails.url);
     const text = await response.text();
     const dom = await new JSDOM(text);
-    const currentPrice = dom.window.document.querySelector(element);
+    const currentPrice = dom.window.document.querySelector(productDetails.element);
     const priceWithoutCurrency = stripOutPoundsSign(currentPrice.textContent);
     const websitePrice = Math.ceil(Number(priceWithoutCurrency))
 
     if (!currentPrice) {
-      console.log(`Unable to retrieve price from ${retailer}`)
+      console.log(`Unable to retrieve price from ${productDetails.retailer}`)
 
       return {
         ...productDetails,
-        retailer: `${retailer}: Unable to retrieve price`,
+        retailer: `${productDetails.retailer}: Unable to retrieve price`,
         price: "N/A"
       }
     }
@@ -52,27 +48,30 @@ async function scrapeWebsites (url, element, retailer, price, _id) {
     // an extra field for increase/decrease in price
     // and use field to style price within email
     
-    if (websitePrice === price) {
+    if (websitePrice === productDetails.price) {
       console.log("prices are the same");
-      return product
+      return {
+        ...productDetails,
+        price: currentPrice.textContent,
+      }
     }
 
-    if (websitePrice > price) {
+    if (websitePrice > productDetails.price) {
       return {
-        ...product,
-        price: websitePrice,
+        ...productDetails,
+        price: currentPrice.textContent,
         priceDifference: PRICE_DIFFERENCE.UP
       }
     } else {
       return {
         ...product,
-        price: websitePrice,
+        price: currentPrice.textContent,
         priceDifference: PRICE_DIFFERENCE.DOWN
       }
     }
 
   } catch (err) {
-    console.error(`Unable to retrieve information from ${retailer}: ${err}`);
+    console.error(`Unable to retrieve information from ${productDetails.retailer}: ${err}`);
   }
 }
 
@@ -100,8 +99,8 @@ getScrapers()
   .then(({ data }) => {
     // Get array of new product details
     // Loop through each details and create PUT request for each one
-    const productsList = async () => Promise.all(data.map(async ({ url, element, retailer, price, _id }) => {
-      const scraper = await scrapeWebsites(url, element, retailer, price, _id);
+    const productsList = async () => Promise.all(data.map(async ({ url, product, element, retailer, price, _id }) => {
+      const scraper = await scrapeWebsites({ url, product, element, retailer, price, _id });
       
       return scraper;
     }));
@@ -109,7 +108,7 @@ getScrapers()
 
     productsList()
       .then(products => {
-        const productName = products[0].retailer;
+        const productName = products[0].product;
         // Create and send email with latest scraping data
         scraperEmail(productName, products);
 
