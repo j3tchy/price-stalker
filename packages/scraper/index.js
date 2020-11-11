@@ -5,6 +5,7 @@ const { API_ROUTES } = require("../api/constants/routes");
 const { createRoute } = require("../api/utils");
 const { PRICE_DIFFERENCE } = require("../api/constants/enums");
 const { createFormBody } = require('./utils/form');
+const scraperEmail = require('../mail');
 
 const { JSDOM } = jsdom;
 
@@ -105,9 +106,14 @@ getScrapers()
       return scraper;
     }));
 
+
     productsList()
       .then(products => {
-        products.forEach(({ _id, price }) => updateScraper(_id, price))
+        const productName = products[0].retailer;
+        // Create and send email with latest scraping data
+        scraperEmail(productName, products);
+
+        // products.forEach(({ _id, price }) => updateScraper(_id, price))
       })
   })
   .catch(err => console.error(err));
