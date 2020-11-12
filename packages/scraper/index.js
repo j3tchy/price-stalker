@@ -119,3 +119,7 @@ function scrapeWebsites() {
 }
 
 scrapeWebsites();
+
+module.export = {
+  scrapeWebsites,
+};

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import Form from './components/Form/Form';
+import Table from './components/Table/Table';
 
 import createFormBody from './utils/form';
 
@@ -14,6 +15,13 @@ const INITIAL_FORM_STATE = {
 
 const App = () => {
   const [formValues, setFormValues] = useState(INITIAL_FORM_STATE);
+  const [scrapers, setScrapers] = useState([]);
+
+  useEffect(() => {
+    fetch('http://localhost:5000/api/scrapers')
+      .then(res => res.json())
+      .then(({ data }) => setScrapers(data));
+  }, []);
 
   const handleSubmit = event => {
     event.preventDefault();
@@ -47,7 +55,13 @@ const App = () => {
           />
         </div>
         <div>
-          <p>Table</p>
+          <Table data={scrapers} />
+          <button
+            type="button"
+            className="mt-3 bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded"
+          >
+            Scrape Websites
+          </button>
         </div>
       </div>
     </div>

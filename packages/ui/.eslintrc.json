@@ -20,6 +20,7 @@
     "rules": {
         "react/jsx-filename-extension": "off",
         "jsx-a11y/label-has-associated-control": "off",
-        "arrow-parens": "off"
+        "arrow-parens": "off",
+        "no-underscore-dangle": "off"
     }
 }
