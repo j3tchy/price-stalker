@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ./**/*.js"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +16,8 @@
     "nodemailer-express-handlebars": "^4.0.0"
   },
   "devDependencies": {
-    "eslint": "^7.13.0"
+    "eslint": "^7.2.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1"
   }
 }

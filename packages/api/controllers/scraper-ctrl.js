@@ -21,7 +21,7 @@ const createScraper = (req, res) => {
   }
 
   // If scraper is saved return details, otherwise return error
-  scraper
+  return scraper
     .save()
     .then(() => res.status(201)
       .json({
