@@ -19,7 +19,7 @@ async function getScrapers() {
 }
 
 // Call to the websites to scrape
-async function scrapeWebsites(product) {
+async function scrape(product) {
   const productDetails = {
     ...product,
     priceDifference: null,
@@ -88,30 +88,34 @@ async function updateScraper(id, price) {
   }
 }
 
-getScrapers()
-  .then((res) => res.json())
-  .then(({ data }) => {
-    // Get array of new product details
-    // Loop through each details and create PUT request for each one
-    const productsList = async () => Promise.all(data.map(async ({
-      url, product, element, retailer, price, _id,
-    }) => {
-      const scraper = await scrapeWebsites({
+function scrapeWebsites() {
+  getScrapers()
+    .then((res) => res.json())
+    .then(({ data }) => {
+      // Get array of new product details
+      // Loop through each details and create PUT request for each one
+      const productsList = async () => Promise.all(data.map(async ({
         url, product, element, retailer, price, _id,
-      });
-
-      return scraper;
-    }));
-
-    productsList()
-      .then((products) => {
-        const productName = products[0].product;
-        // Create and send email with latest scraping data
-        scraperEmail(productName, products);
-
-        products.forEach(({ _id, price }) => {
-          updateScraper(_id, convertToNumber(price));
+      }) => {
+        const scraper = await scrape({
+          url, product, element, retailer, price, _id,
         });
-      });
-  })
-  .catch((err) => console.error(err));
+
+        return scraper;
+      }));
+
+      productsList()
+        .then((products) => {
+          const productName = products[0].product;
+          // Create and send email with latest scraping data
+          scraperEmail(productName, products);
+
+          products.forEach(({ _id, price }) => {
+            updateScraper(_id, convertToNumber(price));
+          });
+        });
+    })
+    .catch((err) => console.error(err));
+}
+
+scrapeWebsites();
