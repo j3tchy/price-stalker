@@ -1,15 +1,15 @@
-const createFormBody = formData => {
+const createFormBody = (formData) => {
   const formBody = [];
 
-  for (let key in formData) {
+  for (const key in formData) {
     const encodedKey = encodeURIComponent(key);
     const encodedValue = encodeURIComponent(formData[key]);
-    formBody.push(encodedKey + "=" + encodedValue);
+    formBody.push(`${encodedKey}=${encodedValue}`);
   }
 
   return formBody;
-}
+};
 
 module.exports = {
-  createFormBody
-}
+  createFormBody,
+};
