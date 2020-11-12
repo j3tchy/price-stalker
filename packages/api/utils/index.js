@@ -1,7 +1,5 @@
-const createRoute = (url, params) => {
-  return Object.keys(params).reduce((prev, cur) => prev.replace(`:${cur}`, params[cur]), url);
-}
+const createRoute = (url, params) => Object.keys(params).reduce((prev, cur) => prev.replace(`:${cur}`, params[cur]), url);
 
 module.exports = {
-  createRoute
-}
+  createRoute,
+};

@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 db.on('error', console.error.bind('console', 'Unable to connect to Mongo db:'));
 
 app.get('/', (req, res) => {
-  console.log("hello world");
+  console.log('hello world');
 });
 
 app.use('/api', scraperRouter);

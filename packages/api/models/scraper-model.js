@@ -1,6 +1,7 @@
-// Creates the schema (structure) of our db. 
+// Creates the schema (structure) of our db.
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
+
+const { Schema } = mongoose;
 
 const Scraper = new Schema({
   retailer: { type: String, required: true },
