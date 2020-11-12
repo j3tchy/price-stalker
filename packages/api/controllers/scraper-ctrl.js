@@ -17,7 +17,7 @@ const createScraper = (req, res) => {
 
   // If scraper is not returned, return error
   if (!scraper) {
-    return res.status(400).json({ success: false, error: err });
+    return res.status(400).json({ success: false, error: 'Unable to retrieve scraper' });
   }
 
   // If scraper is saved return details, otherwise return error
@@ -58,6 +58,8 @@ const getScrapers = async (req, res) => Scraper.find({}, (err, scrapers) => {
 
 const updateScraper = async (req, res) => {
   const { body } = req;
+
+  console.log(body);
 
   // If no body is sent, return json
   if (!body) {

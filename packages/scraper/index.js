@@ -1,11 +1,11 @@
 const fetch = require('node-fetch');
 const jsdom = require('jsdom');
-const { stripOutPoundsSign } = require('./utils/string');
 const { API_ROUTES } = require('../api/constants/routes');
 const { createRoute } = require('../api/utils');
 const { PRICE_DIFFERENCE } = require('../api/constants/enums');
 const { createFormBody } = require('./utils/form');
 const scraperEmail = require('../mail');
+const { convertToNumber } = require('./utils/number');
 
 const { JSDOM } = jsdom;
 
@@ -29,9 +29,9 @@ async function scrapeWebsites(product) {
     const response = await fetch(productDetails.url);
     const text = await response.text();
     const dom = await new JSDOM(text);
-    const currentPrice = dom.window.document.querySelector(productDetails.element);
-    const priceWithoutCurrency = stripOutPoundsSign(currentPrice.textContent);
-    const websitePrice = Math.ceil(Number(priceWithoutCurrency));
+
+    const currentPrice = dom.window.document.querySelector(productDetails.element).textContent;
+    const websitePrice = convertToNumber(currentPrice);
 
     if (!currentPrice) {
       console.log(`Unable to retrieve price from ${productDetails.retailer}`);
@@ -43,28 +43,25 @@ async function scrapeWebsites(product) {
       };
     }
 
-    // TODO: Setup email - with the returned object, add
-    // an extra field for increase/decrease in price
-    // and use field to style price within email
-
     if (websitePrice === productDetails.price) {
       console.log('prices are the same');
       return {
         ...productDetails,
-        price: currentPrice.textContent,
+        price: currentPrice,
       };
     }
 
     if (websitePrice > productDetails.price) {
       return {
         ...productDetails,
-        price: currentPrice.textContent,
+        price: currentPrice,
         priceDifference: PRICE_DIFFERENCE.UP,
       };
     }
+
     return {
       ...product,
-      price: currentPrice.textContent,
+      price: currentPrice,
       priceDifference: PRICE_DIFFERENCE.DOWN,
     };
   } catch (err) {
@@ -112,7 +109,9 @@ getScrapers()
         // Create and send email with latest scraping data
         scraperEmail(productName, products);
 
-        // products.forEach(({ _id, price }) => updateScraper(_id, price))
+        products.forEach(({ _id, price }) => {
+          updateScraper(_id, convertToNumber(price));
+        });
       });
   })
   .catch((err) => console.error(err));
