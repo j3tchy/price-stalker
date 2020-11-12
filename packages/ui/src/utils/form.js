@@ -5,6 +5,4 @@ const createFormBody = (formData) => Object.keys(formData).map((key) => {
   return `${encodedKey}=${encodedValue}`;
 }).join('&');
 
-module.exports = {
-  createFormBody,
-};
+export default createFormBody;
