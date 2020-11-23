@@ -45,24 +45,23 @@ async function scrape(product) {
     }
 
     if (websitePrice === productDetails.price) {
-      console.log('prices are the same');
       return {
         ...productDetails,
-        price: currentPrice,
+        price: websitePrice,
       };
     }
 
     if (websitePrice > productDetails.price) {
       return {
         ...productDetails,
-        price: currentPrice,
+        price: websitePrice,
         priceDifference: PRICE_DIFFERENCE.UP,
       };
     }
 
     return {
       ...product,
-      price: currentPrice,
+      price: websitePrice,
       priceDifference: PRICE_DIFFERENCE.DOWN,
     };
   } catch (err) {
@@ -109,10 +108,13 @@ function scrapeWebsites() {
         .then((products) => {
           const productName = products[0].product;
           // Create and send email with latest scraping data
-          scraperEmail(productName, products);
+
+          if (products.every(products => products.priceDifference !== null)) {
+            scraperEmail(productName, products);
+          };
 
           products.forEach(({ _id, price }) => {
-            updateScraper(_id, convertToNumber(price));
+            updateScraper(_id, price);
           });
         });
     })
@@ -122,7 +124,7 @@ function scrapeWebsites() {
 function scrapeWebsitesUsingCron() {
   console.log('Initialized cron');
 
-  cron.schedule('*/2 * * * *', () => {
+  cron.schedule('0 */4 * * *', () => {
     scrapeWebsites();
   })
 }
