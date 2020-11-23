@@ -94,18 +94,42 @@ const updateScraper = async (req, res) => {
   });
 };
 
-const forceScrape = (req, res, next) => {
-  scrape.scrapeWebsites();
-
-  return res.status(200).json({
-    success: true,
-    message: "Test"
-  })
+const forceScrape = (req, res) => {
+  try {
+    scrape.scrapeWebsites();
+  
+    return res.status(200).json({
+      success: true,
+      message: "Scraper initialized"
+    })
+  } catch (err) {
+    return res.status(400).json({
+      success: false,
+      message: `Scraper not initialized: ${err}`
+    })
+  }
 };
+
+const cronScrape = (req, res) => {
+  try {
+    scrape.scrapeWebsitesUsingCron();
+
+    return res.status(200).json({
+      success: true,
+      message: "Scraper set with cron"
+    })
+  } catch(err) {
+    return res.status(400).json({
+      success: false,
+      message: "Scraper cron"
+    })
+  }
+}
 
 module.exports = {
   createScraper,
   getScrapers,
   updateScraper,
   forceScrape,
+  cronScrape,
 };

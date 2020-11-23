@@ -17,9 +17,6 @@ db.on('error', console.error.bind('console', 'Unable to connect to Mongo db:'));
 
 app.use('/api', scraperRouter);
 
-app.use(scraperCtrl.forceScrape);
-
-
 app.listen(apiPort, () => {
   console.log(`listening on port ${apiPort}`);
 });

@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const jsdom = require('jsdom');
+const cron = require('node-cron');
 const { API_ROUTES } = require('../api/constants/routes');
 const { createRoute } = require('../api/utils');
 const { PRICE_DIFFERENCE } = require('../api/constants/enums');
@@ -30,7 +31,7 @@ async function scrape(product) {
     const text = await response.text();
     const dom = await new JSDOM(text);
 
-    const currentPrice = dom.window.document.querySelector('[data-key=current-price]').textContent;
+    const currentPrice = dom.window.document.querySelector(productDetails.element).textContent;
     const websitePrice = convertToNumber(currentPrice);
 
     if (!currentPrice) {
@@ -118,6 +119,15 @@ function scrapeWebsites() {
     .catch((err) => console.error(err));
 }
 
+function scrapeWebsitesUsingCron() {
+  console.log('Initialized cron');
+
+  cron.schedule('*/2 * * * *', () => {
+    scrapeWebsites();
+  })
+}
+
 module.exports = {
   scrapeWebsites,
+  scrapeWebsitesUsingCron,
 };
