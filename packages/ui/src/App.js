@@ -44,6 +44,12 @@ const App = () => {
     });
   };
 
+  const handleScrapeWebsites = () => {
+    fetch('http://localhost:5000/api/forceScrape')
+      .then(res => res.json())
+      .then(data => data);
+  };
+
   return (
     <div className="container mx-auto">
       <div className="grid sm:grid-cols-1 md:grid-cols-2 gap-4">
@@ -57,6 +63,7 @@ const App = () => {
         <div>
           <Table data={scrapers} />
           <button
+            onClick={() => handleScrapeWebsites()}
             type="button"
             className="mt-3 bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded"
           >

@@ -1,4 +1,5 @@
 const Scraper = require('../models/scraper-model');
+const scrape = require("../../scraper");
 
 const createScraper = (req, res) => {
   // Grab body from request (form content);
@@ -93,11 +94,18 @@ const updateScraper = async (req, res) => {
   });
 };
 
-// const forceScrape = () => scrapeWebsites();
+const forceScrape = (req, res, next) => {
+  scrape.scrapeWebsites();
+
+  return res.status(200).json({
+    success: true,
+    message: "Test"
+  })
+};
 
 module.exports = {
   createScraper,
   getScrapers,
   updateScraper,
-  // forceScrape,
+  forceScrape,
 };

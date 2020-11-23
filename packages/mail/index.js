@@ -1,7 +1,7 @@
 const nodemailer = require('nodemailer');
 const hbs = require('nodemailer-express-handlebars');
 
-require('dotenv').config();
+require('dotenv').config({ path: __dirname + '/.env' });
 
 const transformer = nodemailer.createTransport({
   service: process.env.SERVICE,

@@ -2,7 +2,7 @@
 const { MongoClient } = require('mongodb');
 const mongoose = require('mongoose');
 
-const dbName = 'price-stalker';
+const dbName = 'pricestalker';
 const url = `mongodb://127.0.0.1:27017/${dbName}`;
 
 mongoose.connect(`${url}`, {

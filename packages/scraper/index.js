@@ -30,7 +30,7 @@ async function scrape(product) {
     const text = await response.text();
     const dom = await new JSDOM(text);
 
-    const currentPrice = dom.window.document.querySelector(productDetails.element).textContent;
+    const currentPrice = dom.window.document.querySelector('[data-key=current-price]').textContent;
     const websitePrice = convertToNumber(currentPrice);
 
     if (!currentPrice) {
@@ -118,8 +118,6 @@ function scrapeWebsites() {
     .catch((err) => console.error(err));
 }
 
-scrapeWebsites();
-
-module.export = {
+module.exports = {
   scrapeWebsites,
 };
