@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 
 import Form from './components/Form/Form';
 import Table from './components/Table/Table';
+import Button from './components/Button';
+
+import { API } from './constants/routes';
 
 import createFormBody from './utils/form';
 
@@ -18,7 +21,7 @@ const App = () => {
   const [scrapers, setScrapers] = useState([]);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/scrapers')
+    fetch(API.API_SCRAPERS)
       .then(res => res.json())
       .then(({ data }) => setScrapers(data));
   }, []);
@@ -26,7 +29,7 @@ const App = () => {
   const handleSubmit = event => {
     event.preventDefault();
 
-    fetch('http://localhost:5000/api/scrapers', {
+    fetch(API.API_SCRAPERS, {
       method: 'POST',
       body: createFormBody(formValues),
       headers: {
@@ -45,13 +48,13 @@ const App = () => {
   };
 
   const handleScrapeWebsites = () => {
-    fetch('http://localhost:5000/api/forceScrape')
+    fetch(API.API_FORCE_SCRAPERS)
       .then(res => res.json())
       .then(data => data);
   };
 
   const handleCronScrape = () => {
-    fetch('http://localhost:5000/api/cronScrape')
+    fetch(API.API_CRON_SCRAPERS)
       .then(res => res.json())
       .then(data => data);
   };
@@ -68,20 +71,16 @@ const App = () => {
         </div>
         <div>
           <Table data={scrapers} />
-          <button
-            onClick={() => handleScrapeWebsites()}
-            type="button"
-            className="mt-3 bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded"
+          <Button
+            handleClick={() => handleScrapeWebsites()}
           >
             Scrape Websites
-          </button>
-          <button
-            onClick={() => handleCronScrape()}
-            type="button"
-            className="mt-3 bg-blue-500 hover:bg-blue-400 text-white font-bold py-2 px-4 border-b-4 border-blue-700 hover:border-blue-500 rounded"
+          </Button>
+          <Button
+            handleClick={() => handleCronScrape()}
           >
             Initialize cron
-          </button>
+          </Button>
         </div>
       </div>
     </div>
